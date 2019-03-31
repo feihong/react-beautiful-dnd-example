@@ -28,7 +28,7 @@ let getItemStyle = (isDragging, draggableStyle) =>
       ~userSelect="none",
       ~padding="0.5rem 1rem",
       ~marginBottom="1rem",
-      ~backgroundColor=isDragging ? "firebrick" : "grey",
+      ~backgroundColor=isDragging ? "palegoldenrod" : "ivory",
       (),
     ),
     draggableStyle,
@@ -53,7 +53,10 @@ let make = _children => {
   initialState: () => {
     cards:
       Array.makeBy(10, i =>
-        {id: i->string_of_int, content: "item " ++ (i + 1)->string_of_int}
+        {
+          id: i->string_of_int,
+          content: {js|卡片 |js} ++ (i + 1)->string_of_int,
+        }
       ),
   },
 
@@ -75,11 +78,11 @@ let make = _children => {
 
   render: ({state, send}) =>
     <div>
-      <h1> "Cards"->s </h1>
+      <h1> "Reason react-beautiful-dnd example"->s </h1>
       <DragDropContext onDragEnd={result => send @@ DropCard(result)}>
         <Droppable droppableId="droppable">
           ...{(provided, snapshot) =>
-            <SpecialDiv
+            <VariadicDiv
               props=[provided##droppableProps]
               theRef=provided##innerRef
               style={getListStyle(snapshot##isDraggingOver)}>
@@ -87,7 +90,7 @@ let make = _children => {
                ->Array.mapWithIndex((index, card) =>
                    <Draggable key={card.id} draggableId={card.id} index>
                      ...{(provided, snapshot) =>
-                       <SpecialDiv
+                       <VariadicDiv
                          theRef=provided##innerRef
                          props=[
                            provided##draggableProps,
@@ -98,13 +101,13 @@ let make = _children => {
                            provided##draggableProps##style,
                          )}>
                          card.content->s
-                       </SpecialDiv>
+                       </VariadicDiv>
                      }
                    </Draggable>
                  )
                ->RR.array}
               {provided##placeholder}
-            </SpecialDiv>
+            </VariadicDiv>
           }
         </Droppable>
       </DragDropContext>
