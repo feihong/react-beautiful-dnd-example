@@ -1,4 +1,3 @@
-open Belt;
 module RR = ReasonReact;
 let s = RR.string;
 let style = ReactDOMRe.Style.make;
@@ -14,6 +13,26 @@ let reorder = (arr, index1, index2) => {
   };
   arr;
 };
+
+let getListStyle = isDraggingOver =>
+  style(
+    ~background=isDraggingOver ? "lightblue" : "lightgrey",
+    ~padding="1rem",
+    ~width="250px",
+    (),
+  );
+
+let getItemStyle = (isDragging, draggableStyle) =>
+  ReactDOMRe.Style.combine(
+    style(
+      ~userSelect="none",
+      ~padding="0.5rem 1rem",
+      ~marginBottom="1rem",
+      ~backgroundColor=isDragging ? "firebrick" : "grey",
+      (),
+    ),
+    draggableStyle,
+  );
 
 type card = {
   id: string,
@@ -61,7 +80,9 @@ let make = _children => {
         <Droppable droppableId="droppable">
           ...{(provided, snapshot) =>
             <SpecialDiv
-              props=[provided##droppableProps] theRef=provided##innerRef>
+              props=[provided##droppableProps]
+              theRef=provided##innerRef
+              style={getListStyle(snapshot##isDraggingOver)}>
               {state.cards
                ->Array.mapWithIndex((index, card) =>
                    <Draggable key={card.id} draggableId={card.id} index>
@@ -72,12 +93,9 @@ let make = _children => {
                            provided##draggableProps,
                            provided##dragHandleProps,
                          ]
-                         style={style(
-                           ~padding="0.5rem 1rem",
-                           ~border="1px solid gray",
-                           ~marginBottom="1rem",
-                           ~width="300px",
-                           (),
+                         style={getItemStyle(
+                           snapshot##isDragging,
+                           provided##draggableProps##style,
                          )}>
                          card.content->s
                        </SpecialDiv>

@@ -8,6 +8,8 @@ let unsafeCombineStyleProps = [%bs.raw
         Object.assign(newStyle, props.style);
         Object.assign(newStyle, style);
         props.style = newStyle;
+      } else {
+        props.style = style;
       }
     }
   |}
