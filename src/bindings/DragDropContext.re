@@ -8,7 +8,7 @@ type dragDestination = {. "index": int};
 type dragResult = {
   .
   "source": dragSource,
-  "destination": Js.null(dragDestination),
+  "destination": Js.nullable(dragDestination),
 };
 
 let make = (~onDragEnd: dragResult => unit, children) =>
