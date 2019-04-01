@@ -42,7 +42,6 @@ type card = {
 type state = {cards: array(card)};
 
 type action =
-  | MoveCard(int, int)
   | DropCard(DragDropContext.dragResult);
 
 let component = RR.reducerComponent(__MODULE__);
@@ -63,17 +62,14 @@ let make = _children => {
   reducer: (action, state) =>
     switch (action) {
     | DropCard(result) =>
-      RR.SideEffects(
-        ({send}) =>
-          result##destination
-          ->Js.toOption
-          ->Option.map(destination =>
-              send @@ MoveCard(result##source##index, destination##index)
-            )
-          ->ignore,
-      )
-    | MoveCard(dragIndex, dropIndex) =>
-      RR.Update({cards: state.cards->reorder(dragIndex, dropIndex)})
+      switch (result##destination->Js.toOption) {
+      | Some(destination) =>
+        RR.Update({
+          cards:
+            state.cards->reorder(result##source##index, destination##index),
+        })
+      | None => RR.NoUpdate
+      }
     },
 
   render: ({state, send}) =>
