@@ -52,7 +52,7 @@ let make = _children => {
 
   initialState: () => {
     cards:
-      Array.makeBy(10, i =>
+      Array.makeBy(30, i =>
         {
           id: i->string_of_int,
           content: {js|卡片 |js} ++ (i + 1)->string_of_int,
@@ -101,6 +101,16 @@ let make = _children => {
                            provided##draggableProps##style,
                          )}>
                          card.content->s
+                         // Show that your preferred dragging cursor will
+                         // override child cursor styles
+                         <span
+                           style={style(
+                             ~marginLeft="1rem",
+                             ~cursor="pointer",
+                             (),
+                           )}>
+                           "look at this"->s
+                         </span>
                        </VariadicDiv>
                      }
                    </Draggable>
