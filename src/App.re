@@ -29,6 +29,7 @@ let getItemStyle = (isDragging, draggableStyle) =>
       ~padding="0.5rem 1rem",
       ~marginBottom="1rem",
       ~backgroundColor=isDragging ? "palegoldenrod" : "ivory",
+      ~cursor=isDragging ? "move" : "grab",
       (),
     ),
     draggableStyle,
@@ -39,9 +40,13 @@ type card = {
   content: string,
 };
 
-type state = {cards: array(card)};
+type state = {
+  cards: array(card),
+  disabled: bool,
+};
 
 type action =
+  | Toggle
   | DropCard(DragDropContext.dragResult);
 
 let component = RR.reducerComponent(__MODULE__);
@@ -57,14 +62,17 @@ let make = _children => {
           content: {js|卡片 |js} ++ (i + 1)->string_of_int,
         }
       ),
+    disabled: false,
   },
 
   reducer: (action, state) =>
     switch (action) {
+    | Toggle => RR.Update({...state, disabled: !state.disabled})
     | DropCard(result) =>
       switch (result##destination->Js.toOption) {
       | Some(destination) =>
         RR.Update({
+          ...state,
           cards:
             state.cards->reorder(result##source##index, destination##index),
         })
@@ -75,6 +83,14 @@ let make = _children => {
   render: ({state, send}) =>
     <div>
       <h1> "Reason react-beautiful-dnd example"->s </h1>
+      <label>
+        <input
+          type_="checkbox"
+          onClick={_ => send @@ Toggle}
+          checked={state.disabled}
+        />
+        "Disable drag"->s
+      </label>
       <DragDropContext onDragEnd={result => send @@ DropCard(result)}>
         <Droppable droppableId="droppable">
           ...{(provided, snapshot) =>
@@ -84,7 +100,11 @@ let make = _children => {
               style={getListStyle(snapshot##isDraggingOver)}>
               {state.cards
                ->Array.mapWithIndex((index, card) =>
-                   <Draggable key={card.id} draggableId={card.id} index>
+                   <Draggable
+                     key={card.id}
+                     draggableId={card.id}
+                     isDragDisabled={state.disabled}
+                     index>
                      ...{(provided, snapshot) =>
                        <VariadicDiv
                          theRef=provided##innerRef
